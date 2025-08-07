@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card border-primary shadow">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-person-plus me-2"></i>Ajouter un Nouveau Client</h5>
+                        <a href="{{ url_for('manage_clients') }}" class="btn btn-sm btn-light">
+                            <i class="bi bi-arrow-left"></i> Retour
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('add_client') }}" class="needs-validation" novalidate>
+                        <!-- Section Informations de Base -->
+                        <fieldset class="mb-4">
+                            <legend class="fw-bold text-primary mb-3">
+                                <i class="bi bi-info-circle"></i> Informations Générales
+                            </legend>
+                            
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Nom/Raison Sociale <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                                <div class="invalid-feedback">Veuillez saisir le nom du client.</div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="ville" class="form-label">Ville</label>
+                                    <input type="text" class="form-control" id="ville" name="ville">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="pays" class="form-label">Pays</label>
+                                    <select class="form-select" id="pays" name="pays">
+                                        <option value="" selected disabled>Sélectionnez un pays</option>
+                                        <option value="Maroc">Maroc</option>
+                                        <option value="Algérie">Algérie</option>
+                                        <option value="Tunisie">Tunisie</option>
+                                        <option value="Autre">Autre</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <!-- Section Contacts -->
+                        <fieldset class="mb-4">
+                            <legend class="fw-bold text-primary mb-3">
+                                <i class="bi bi-telephone"></i> Coordonnées
+                            </legend>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="telephone" class="form-label">Téléphone Fixe</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-telephone-fill"></i></span>
+                                        <input type="tel" class="form-control" id="telephone" name="telephone" pattern="[0-9]{10}">
+                                    </div>
+                                    <small class="text-muted">Format: 0522123456</small>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="gsm" class="form-label">Téléphone Mobile <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-phone-fill"></i></span>
+                                        <input type="tel" class="form-control" id="gsm" name="gsm" required pattern="[0-9]{10}">
+                                    </div>
+                                    <small class="text-muted">Format: 0612345678</small>
+                                    <div class="invalid-feedback">Un numéro mobile valide est requis.</div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
+                                    <input type="email" class="form-control" id="email" name="email">
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <!-- Section Identifiants Juridiques -->
+                        <fieldset class="mb-4">
+                            <legend class="fw-bold text-primary mb-3">
+                                <i class="bi bi-file-earmark-text"></i> Identifiants Juridiques
+                            </legend>
+                            
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="rc" class="form-label">Registre du Commerce</label>
+                                    <input type="text" class="form-control" id="rc" name="rc">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="cnss" class="form-label">Numéro CNSS</label>
+                                    <input type="text" class="form-control" id="cnss" name="cnss">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="patente" class="form-label">Numéro Patente</label>
+                                    <input type="text" class="form-control" id="patente" name="patente">
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="ice" class="form-label">Identifiant ICE <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="ice" name="ice" required pattern="[0-9]{15}">
+                                <small class="text-muted">15 chiffres</small>
+                                <div class="invalid-feedback">L'ICE doit contenir 15 chiffres.</div>
+                            </div>
+                        </fieldset>
+
+                        <!-- Section Observations -->
+                        <fieldset class="mb-4">
+                            <legend class="fw-bold text-primary mb-3">
+                                <i class="bi bi-chat-left-text"></i> Informations Complémentaires
+                            </legend>
+                            
+                            <div class="mb-3">
+                                <label for="observations" class="form-label">Observations</label>
+                                <textarea class="form-control" id="observations" name="observations" rows="3"></textarea>
+                            </div>
+                        </fieldset>
+
+                        <!-- Boutons de soumission -->
+                        <div class="d-flex justify-content-between">
+                            <button type="reset" class="btn btn-outline-secondary">
+                                <i class="bi bi-eraser"></i> Réinitialiser
+                            </button>
+                            <div>
+                                <a href="{{ url_for('manage_clients') }}" class="btn btn-secondary me-2">
+                                    <i class="bi bi-x-circle"></i> Annuler
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-save"></i> Enregistrer le Client
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Validation côté client
+(function () {
+    'use strict'
+    
+    var forms = document.querySelectorAll('.needs-validation')
+    
+    Array.prototype.slice.call(forms)
+        .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+
+                form.classList.add('was-validated')
+            }, false)
+        })
+})()
+</script>
+{% endblock %}

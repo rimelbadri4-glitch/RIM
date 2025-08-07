@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Modifier Client: {{ client['name'] }}</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('edit_client', client_id=client['id']) }}">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Nom/Raison Sociale</label>
+                            <input type="text" class="form-control" id="name" name="name" value="{{ client['name'] }}" required>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="ville" class="form-label">Ville</label>
+                                <input type="text" class="form-control" id="ville" name="ville" value="{{ client['ville'] or '' }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="pays" class="form-label">Pays</label>
+                                <input type="text" class="form-control" id="pays" name="pays" value="{{ client['pays'] or '' }}">
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="telephone" class="form-label">Téléphone</label>
+                                <input type="text" class="form-control" id="telephone" name="telephone" value="{{ client['telephone'] or '' }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="gsm" class="form-label">GSM</label>
+                                <input type="text" class="form-control" id="gsm" name="gsm" value="{{ client['gsm'] or '' }}">
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="rc" class="form-label">RC</label>
+                                <input type="text" class="form-control" id="rc" name="rc" value="{{ client['rc'] or '' }}">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="cnss" class="form-label">CNSS</label>
+                                <input type="text" class="form-control" id="cnss" name="cnss" value="{{ client['cnss'] or '' }}">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="patente" class="form-label">Patente</label>
+                                <input type="text" class="form-control" id="patente" name="patente" value="{{ client['patente'] or '' }}">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="ice" class="form-label">ICE</label>
+                            <input type="text" class="form-control" id="ice" name="ice" value="{{ client['ice'] or '' }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="observations" class="form-label">Observations</label>
+                            <textarea class="form-control" id="observations" name="observations" rows="3">{{ client['observations'] or '' }}</textarea>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-primary me-md-2">
+                                <i class="bi bi-save"></i> Mettre à jour
+                            </button>
+                            <a href="{{ url_for('manage_clients') }}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

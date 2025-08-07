@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Alerte Stock Faible</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6; 
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 25px;
+            color: #333;
+        }
+        h2 { 
+            color: #d63031; 
+            border-bottom: 2px solid #ff7675;
+            padding-bottom: 8px;
+            margin-top: 0;
+        }
+        ul { 
+            list-style-type: none; 
+            padding: 0;
+            margin: 25px 0; 
+        }
+        li { 
+            padding: 12px 15px; 
+            border-bottom: 1px solid #eee; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+        li:hover {
+            background-color: #f9f9f9;
+        }
+        .alert { 
+            background-color: #ffecec; 
+            padding: 20px; 
+            border-radius: 6px;
+            border-left: 4px solid #d63031;
+            margin-bottom: 25px;
+        }
+        .btn { 
+            display: inline-block; 
+            padding: 12px 24px; 
+            background-color: #0984e3; 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 6px; 
+            margin-top: 25px;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .btn:hover {
+            background-color: #0767b3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        .quantity {
+            color: #d63031;
+            font-weight: bold;
+            background-color: #ffebee;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.9em;
+        }
+        .threshold {
+            background-color: #fdcb6e;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="alert">
+        <h2>⚠ Alerte Stock Faible</h2>
+        <p>Les produits suivants sont en rupture de stock (moins de <span class="threshold">{{ threshold }}</span> unités disponibles) :</p>
+    </div>
+    
+    <ul>
+        {% for item in items %}
+        <li>
+            <span><strong>{{ item.name }}</strong></span>
+            <span class="quantity">{{ item.quantity }} unité(s) restante(s)</span>
+        </li>
+        {% endfor %}
+    </ul>
+    
+    <p>Merci de réapprovisionner le stock dès que possible.</p>
+    
+    <a href="{{ url_for('inventory_report', _external=True) }}" class="btn">
+        Voir l'Inventaire
+    </a>
+</body>
+</html>

@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="mb-4">Gestion des Mouvements de Stock</h1>
+
+<!-- Étape 1 : Choix du type de mouvement -->
+<div class="card mb-4" id="movement-type-step">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Type de Mouvement</h5>
+    </div>
+    <div class="card-body text-center">
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-outline-primary movement-type-btn" data-type="Entry">Entrée Stock</button>
+            <button type="button" class="btn btn-outline-primary movement-type-btn" data-type="Exit">Sortie Stock</button>
+        </div>
+    </div>
+</div>
+
+<!-- Étape 2 : Formulaire -->
+<div class="card" id="movement-form-card" style="display:none;">
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('add_movement') }}" id="movement-form">
+            <input type="hidden" id="movement_type" name="movement_type" value="">
+
+            <!-- Section commune -->
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="product_id" class="form-label">Produit *</label>
+                    <select class="form-select" id="product_id" name="product_id" required>
+                        <option value="">Sélectionnez un produit</option>
+                        {% for product in products %}
+                            <option value="{{ product['id'] }}"
+                                    data-family="{{ product['family'] }}"
+                                    data-category="{{ product['category'] }}">
+                                {{ product['name'] }} ({{ product['family'] }} - {{ product['category'] }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label for="quantity" class="form-label">Quantité *</label>
+                    <input type="number" class="form-control" id="quantity" name="quantity" min="1" required>
+                </div>
+            </div>
+
+            <!-- Section Entrée -->
+            <div id="entry-fields">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label for="sub_batch" class="form-label">Sous-Lot *</label>
+                        <input type="text" class="form-control" id="sub_batch" name="sub_batch" required 
+                               placeholder="AAMJJX" pattern="[0-9]{5}[A-Za-z]">
+                        <small class="form-text text-muted">Format: 2 chiffres année + 3 chiffres jour julien + 1 lettre</small>
+                        <div id="sub-batch-error" class="invalid-feedback"></div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">N° Lot</label>
+                        <input type="text" class="form-control" id="batch" name="batch" readonly>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">DPJ</label>
+                        <input type="text" class="form-control" id="dpj" name="dpj" readonly>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label">DLC</label>
+                        <input type="text" class="form-control" id="best_before" name="best_before" readonly>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Sortie -->
+            <div id="exit-fields" style="display:none;">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="customer_id" class="form-label">Client *</label>
+                        <select class="form-select" id="customer_id" name="customer_id">
+                            <option value="">Sélectionnez un client</option>
+                            {% for customer in customers %}
+                                <option value="{{ customer['id'] }}">{{ customer['name'] }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Sous-Lot</label>
+                        <input type="text" class="form-control" id="exit_sub_batch" name="exit_sub_batch" readonly>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+                <button type="button" id="cancel-btn" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Retour
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle"></i> Valider
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const movementTypeStep = document.getElementById('movement-type-step');
+    const movementFormCard = document.getElementById('movement-form-card');
+    const movementTypeInput = document.getElementById('movement_type');
+    const entryFields = document.getElementById('entry-fields');
+    const exitFields = document.getElementById('exit-fields');
+    const productSelect = document.getElementById('product_id');
+    const subBatchField = document.getElementById('sub_batch');
+    const batchField = document.getElementById('batch');
+    const dpjField = document.getElementById('dpj');
+    const bestBeforeField = document.getElementById('best_before');
+
+    document.querySelectorAll('.movement-type-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const movementType = this.dataset.type;
+            movementTypeInput.value = movementType;
+            movementTypeStep.style.display = 'none';
+            movementFormCard.style.display = 'block';
+
+            if (movementType === 'Entry') {
+                entryFields.style.display = 'block';
+                exitFields.style.display = 'none';
+            } else {
+                entryFields.style.display = 'none';
+                exitFields.style.display = 'block';
+                generateExitSubBatch();
+            }
+        });
+    });
+
+    function formatDate(date) {
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
+
+    function generateExitSubBatch() {
+        const selectedProduct = productSelect.options[productSelect.selectedIndex];
+        if (selectedProduct.value) {
+            const productCode = selectedProduct.text.match(/\(([^)]+)\)/)[1].charAt(0);
+            const now = new Date();
+            document.getElementById('exit_sub_batch').value =
+                `SORTIE-${productCode}-${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}`;
+        }
+    }
+
+    subBatchField.addEventListener('input', function () {
+        const subBatch = this.value.trim().toUpperCase();
+        const selectedProduct = productSelect.options[productSelect.selectedIndex];
+
+        if (!/^[0-9]{5}[A-Z]$/.test(subBatch)) {
+            document.getElementById('sub-batch-error').textContent = "Format invalide : 5 chiffres + 1 lettre (ex: 25125P)";
+            this.classList.add('is-invalid');
+            return;
+        }
+
+        const subBatchLetter = subBatch.charAt(5);
+        const productFamily = selectedProduct.dataset.family.toLowerCase();
+        const productCategory = selectedProduct.dataset.category.toLowerCase();
+
+        if ((productFamily === 'poulet' && subBatchLetter !== 'P') ||
+            (productFamily === 'dinde' && subBatchLetter !== 'D')) {
+            document.getElementById('sub-batch-error').textContent = "Lettre du sous-lot incorrecte (attendu : P pour Poulet, D pour Dinde)";
+            this.classList.add('is-invalid');
+            return;
+        }
+
+        const year = 2000 + parseInt(subBatch.substring(0, 2));
+        const dayOfYear = parseInt(subBatch.substring(2, 5));
+        const dpjDate = new Date(year, 0);
+        dpjDate.setDate(dayOfYear);
+
+        dpjField.value = formatDate(dpjDate);
+        batchField.value = "LOT-" + subBatch;
+
+        let monthsToAdd = 18;
+
+        if (productCategory === 'abats') {
+            monthsToAdd = 9;
+        } else if (productCategory === 'vsm') {
+            monthsToAdd = 12;
+        }
+
+        const dlcDate = new Date(dpjDate);
+        dlcDate.setMonth(dlcDate.getMonth() + monthsToAdd);
+
+        if (dlcDate.getDate() !== dpjDate.getDate()) {
+            dlcDate.setDate(0);
+        }
+
+        bestBeforeField.value = formatDate(dlcDate);
+        this.classList.remove('is-invalid');
+        document.getElementById('sub-batch-error').textContent = '';
+    });
+
+    document.getElementById('cancel-btn').addEventListener('click', function () {
+        movementFormCard.style.display = 'none';
+        movementTypeStep.style.display = 'block';
+        document.getElementById('movement-form').reset();
+    });
+
+    productSelect.addEventListener('change', function () {
+        if (movementTypeInput.value === 'Exit') {
+            generateExitSubBatch();
+        }
+    });
+});
+</script>
+
+<style>
+    .invalid-feedback {
+        color: #dc3545;
+        font-size: 0.8rem;
+    }
+    .is-invalid {
+        border-color: #dc3545 !important;
+    }
+    .movement-type-btn {
+        width: 200px;
+        height: 60px;
+        font-size: 1.1rem;
+    }
+    .form-control[readonly] {
+        background-color: #f8f9fa;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3 class="mb-0"><i class="bi bi-person-gear me-2"></i>Modifier le Profil Utilisateur</h3>
+                        <a href="{{ url_for('admin_view_profile', user_id=profile['id']) }}" class="btn btn-sm btn-light">
+                            <i class="bi bi-arrow-left"></i> Retour
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('admin_edit_profile', user_id=profile['id']) }}" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        <!-- Section Identité -->
+                        <div class="mb-4">
+                            <h5 class="text-primary mb-3"><i class="bi bi-person-badge"></i> Identité</h5>
+                            
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Nom d'utilisateur</label>
+                                <input type="text" class="form-control bg-light" id="username" 
+                                       value="{{ profile['username'] }}" readonly>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="last_name" class="form-label">Nom</label>
+                                    <input type="text" class="form-control" id="last_name" name="last_name" 
+                                           value="{{ profile['last_name'] if profile['last_name'] }}">
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="first_name" class="form-label">Prénom</label>
+                                    <input type="text" class="form-control" id="first_name" name="first_name" 
+                                           value="{{ profile['first_name'] if profile['first_name'] }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section Contact et Rôle -->
+                        <div class="mb-4">
+                            <h5 class="text-primary mb-3"><i class="bi bi-envelope"></i> Contact et Rôle</h5>
+                            
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       value="{{ profile['email'] if profile['email'] }}" required>
+                                <div class="invalid-feedback">Veuillez saisir un email valide.</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="role" class="form-label">Rôle <span class="text-danger">*</span></label>
+                                <select class="form-select" id="role" name="role" required>
+                                    <option value="admin" {% if profile['role'] == 'admin' %}selected{% endif %}>Administrateur</option>
+                                    <option value="manager" {% if profile['role'] == 'manager' %}selected{% endif %}>Gestionnaire</option>
+                                    <option value="user" {% if profile['role'] == 'user' %}selected{% endif %}>Utilisateur</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Section Photo de Profil -->
+                        <div class="mb-4">
+                            <h5 class="text-primary mb-3"><i class="bi bi-camera"></i> Photo de Profil</h5>
+                            
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    <div class="border rounded" style="width: 100px; height: 100px; overflow: hidden;">
+                                        {% if profile['profile_picture'] %}
+                                            <img src="{{ url_for('static', filename=profile['profile_picture']) }}" 
+                                                 class="img-fluid h-100 w-100 object-fit-cover" id="current-image">
+                                        {% else %}
+                                            <div class="h-100 w-100 bg-light d-flex align-items-center justify-content-center">
+                                                <i class="bi bi-person-circle fs-3 text-muted"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <input class="form-control" type="file" id="profile_picture" name="profile_picture" accept="image/*">
+                                    <small class="text-muted">Formats acceptés: JPG, PNG (max 2MB)</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section Mot de Passe -->
+                        <div class="mb-4">
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="change_password" name="change_password">
+                                <label class="form-check-label" for="change_password">Modifier le mot de passe</label>
+                            </div>
+                            
+                            <div id="password-fields" style="display: none;">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="new_password" class="form-label">Nouveau mot de passe</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                            <input type="password" class="form-control" id="new_password" name="new_password">
+                                            <button class="btn btn-outline-secondary toggle-password" type="button">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                        </div>
+                                        <small class="text-muted">8+ caractères, 1 majuscule, 1 minuscule, 1 chiffre</small>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="confirm_password" class="form-label">Confirmation</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                            <input type="password" class="form-control" id="confirm_password" name="confirm_password">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Boutons de soumission -->
+                        <div class="d-flex justify-content-between pt-3">
+                            <button type="reset" class="btn btn-outline-danger">
+                                <i class="bi bi-arrow-counterclockwise"></i> Réinitialiser
+                            </button>
+                            <div>
+                                <a href="{{ url_for('admin_view_profile', user_id=profile['id']) }}" class="btn btn-secondary me-2">
+                                    <i class="bi bi-x-circle"></i> Annuler
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle"></i> Enregistrer
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Afficher/masquer les champs de mot de passe
+    const passwordToggle = document.getElementById('change_password');
+    const passwordFields = document.getElementById('password-fields');
+    
+    passwordToggle.addEventListener('change', function() {
+        passwordFields.style.display = this.checked ? 'block' : 'none';
+    });
+
+    // Afficher/masquer le mot de passe
+    document.querySelectorAll('.toggle-password').forEach(button => {
+        button.addEventListener('click', function() {
+            const input = this.closest('.input-group').querySelector('input');
+            const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+            input.setAttribute('type', type);
+            this.querySelector('i').classList.toggle('bi-eye');
+            this.querySelector('i').classList.toggle('bi-eye-slash');
+        });
+    });
+
+    // Validation du formulaire
+    const form = document.querySelector('.needs-validation');
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    }, false);
+});
+</script>
+
+<style>
+    .card {
+        border-radius: 10px;
+    }
+    .card-header {
+        border-radius: 10px 10px 0 0 !important;
+    }
+    .toggle-password {
+        cursor: pointer;
+    }
+    .toggle-password:hover {
+        background-color: #e9ecef;
+    }
+    .object-fit-cover {
+        object-fit: cover;
+    }
+</style>
+{% endblock %}

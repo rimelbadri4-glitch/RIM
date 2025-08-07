@@ -1,0 +1,107 @@
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const movementType = document.getElementById('movement_type');
+    const customerSelect = document.getElementById('customer_id');
+    const productSelect = document.getElementById('product_id');
+    const dpjField = document.getElementById('dpj');
+    const subBatchField = document.getElementById('sub_batch');
+    const batchField = document.getElementById('batch');
+    const bestBeforeField = document.getElementById('best_before');
+
+    dpjField.addEventListener('input', updateFields);
+    productSelect.addEventListener('change', updateFields);
+
+    document.getElementById('movement-form').addEventListener('submit', function(e) {
+        if (movementType.value === 'Exit' && customerSelect.value === '') {
+            e.preventDefault();
+            alert('Please select a customer for stock exit movements');
+            customerSelect.focus();
+        }
+
+        if (!isValidDate(dpjField.value)) {
+            e.preventDefault();
+            alert('Please enter a valid DPJ date in DD/MM/YYYY format');
+            dpjField.focus();
+        }
+    });
+
+    function updateFields() {
+        const selectedOption = productSelect.options[productSelect.selectedIndex];
+        if (!selectedOption) return;
+
+        const dpjValue = dpjField.value;
+        const family = selectedOption.dataset.family?.toLowerCase();
+        const category = selectedOption.dataset.category?.toLowerCase();
+
+        if (!dpjValue || !isValidDate(dpjValue) || !family || !category) return;
+
+        const [day, month, year] = dpjValue.split('/');
+        const date = new Date(year, month - 1, day);
+
+        const yearShort = date.getFullYear().toString().slice(-2);
+
+        const start = new Date(date.getFullYear(), 0, 0);
+        const diff = date - start;
+        const oneDay = 1000 * 60 * 60 * 24;
+        const julianDay = Math.floor(diff / oneDay); // ex: 107
+
+        // --- CODE PRODUIT ---
+        let code = '';
+        if (family === 'poulet') code = 'P';
+        else if (family === 'dinde') code = 'D';
+        else {
+            alert('Erreur : Famille non reconnue. Uniquement "Poulet" ou "Dinde"');
+            batchField.value = '';
+            subBatchField.value = '';
+            return;
+        }
+
+        const weekNumber = getWeekNumber(date);
+        const dlcDate = calculateDLC(date, category);
+
+        // MAJ des champs
+        batchField.value = `${yearShort}${code}${weekNumber}-${weekNumber + 1}`;
+        subBatchField.value = `${yearShort}${julianDay}${code}`;
+        bestBeforeField.value = formatDate(dlcDate);
+    }
+
+    function calculateDLC(date, category) {
+        const cat = category.toLowerCase();
+        let monthsToAdd = 18; // default
+
+        if (cat.includes('abats')) monthsToAdd = 9;
+        else if (cat.includes('vsm')) monthsToAdd = 12;
+        else if (cat.includes('entier') || cat.includes('découpe') || cat.includes('decoupe')) monthsToAdd = 18;
+
+        const dlc = new Date(date);
+        dlc.setMonth(dlc.getMonth() + monthsToAdd);
+        return dlc;
+    }
+
+    function getWeekNumber(date) {
+        const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+        d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+        const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+        const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+        return weekNo;
+    }
+
+    function isValidDate(str) {
+        const pattern = /^\d{2}\/\d{2}\/\d{4}$/;
+        if (!pattern.test(str)) return false;
+        const [d, m, y] = str.split('/');
+        const date = new Date(y, m - 1, d);
+        return date instanceof Date && !isNaN(date);
+    }
+
+    function formatDate(date) {
+        const d = String(date.getDate()).padStart(2, '0');
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const y = date.getFullYear();
+        return `${d}/${m}/${y}`;
+    }
+
+    // Init on load if needed
+    if (dpjField.value) updateFields();
+});
+</script>

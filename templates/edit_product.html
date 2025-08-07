@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="mb-4">Modifier Produit</h1>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('edit_product', product_id=product['id']) }}">
+            <div class="mb-3">
+                <label for="name" class="form-label">Nom du produit</label>
+                <input type="text" class="form-control" id="name" name="name" 
+                       value="{{ product['name'] }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="family" class="form-label">Famille</label>
+                <input type="text" class="form-control" id="family" name="family" 
+                       value="{{ product['family'] }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="category" class="form-label">Catégorie</label>
+                <select class="form-select" id="category" name="category" required>
+                    <option value="MSM" {% if product['category'] == 'MSM' %}selected{% endif %}>
+                        VSM - 12 mois
+                    </option>
+                    <option value="Offal" {% if product['category'] == 'Offal' %}selected{% endif %}>
+                        Abats - 9 mois
+                    </option>
+                    <option value="Whole" {% if product['category'] == 'Whole' %}selected{% endif %}>
+                        Produit entier - 18 mois
+                    </option>
+                    <option value="Cut" {% if product['category'] == 'Cut' %}selected{% endif %}>
+                        Produit découpé - 18 mois
+                    </option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Mettre à jour</button>
+            <a href="{{ url_for('manage_products') }}" class="btn btn-secondary">Annuler</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

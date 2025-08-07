@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Bienvenue, {{ session.username }} ({{ session.role }})</h1>
+
+    <div class="row mt-4">
+        {% if session.role in ['admin', 'manager'] %}
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Ajouter un mouvement</h5>
+                    <a href="{{ url_for('add_movement') }}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-plus-circle"></i> Ajouter un mouvement
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Tableau de bord</h5>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-info btn-lg">
+                        <i class="bi bi-speedometer2"></i> Tableau de bord
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Inventaire</h5>
+                    <a href="{{ url_for('inventory_report') }}" class="btn btn-success btn-lg">
+                        <i class="bi bi-box-seam"></i> Inventaire
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 mt-3">
+            <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                <a href="{{ url_for('movements') }}" class="btn btn-outline-secondary me-md-2">
+                    <i class="bi bi-list-check"></i> Voir tous les mouvements
+                </a>
+                {% if session.role == 'admin' %}
+                <a href="{{ url_for('manage_users') }}" class="btn btn-outline-secondary me-md-2">
+                    <i class="bi bi-people"></i> Gérer les utilisateurs
+                </a>
+                <a href="{{ url_for('manage_products') }}" class="btn btn-outline-secondary me-md-2">
+                    <i class="bi bi-boxes"></i> Gérer les produits
+                </a>
+                <a href="{{ url_for('manage_clients') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-building"></i> Gérer les clients
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

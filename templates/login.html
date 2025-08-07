@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
+
+  body, html {
+    height: 100%;
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+    color: #333;
+  }
+
+  .login-container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+  }
+
+  .login-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: saturate(180%) blur(12px);
+    border-radius: 18px;
+    box-shadow:
+      0 8px 24px rgba(0, 0, 0, 0.08),
+      0 16px 48px rgba(0, 0, 0, 0.06);
+    padding: 3rem 3.5rem;
+    max-width: 420px;
+    width: 100%;
+    transition: box-shadow 0.3s ease;
+  }
+
+  .login-card:hover {
+    box-shadow:
+      0 12px 36px rgba(0, 0, 0, 0.12),
+      0 24px 72px rgba(0, 0, 0, 0.1);
+  }
+
+  .login-title {
+    font-size: 2.25rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    color: #102a43;
+    text-align: center;
+    letter-spacing: 0.04em;
+  }
+
+  label.form-label {
+    display: block;
+    margin-bottom: 0.6rem;
+    font-weight: 500;
+    color: #334e68;
+    font-size: 1rem;
+    letter-spacing: 0.02em;
+  }
+
+  .input-group {
+    display: flex;
+    align-items: center;
+    border: 1.8px solid #bcccdc;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 1.8rem;
+    background: #fff;
+    box-shadow: inset 0 1px 3px rgba(50,50,93,.06);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .input-group:focus-within {
+    border-color: #486581;
+    box-shadow: 0 0 8px rgba(72, 101, 129, 0.3);
+  }
+
+  .input-group-text {
+    padding: 0.6rem 1rem;
+    background: #f0f4f8;
+    color: #486581;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    border-right: 1px solid #d9e2ec;
+    user-select: none;
+  }
+
+  .form-control {
+    border: none;
+    padding: 0.85rem 1rem;
+    font-size: 1.1rem;
+    flex: 1;
+    background: transparent;
+    color: #334e68;
+    outline: none;
+    font-weight: 400;
+  }
+
+  .form-control::placeholder {
+    color: #9fb3c8;
+    font-weight: 300;
+  }
+
+  .btn-login {
+    background: linear-gradient(135deg, #2f80ed, #56ccf2);
+    color: white;
+    border: none;
+    padding: 14px 0;
+    width: 100%;
+    border-radius: 36px;
+    font-weight: 600;
+    font-size: 1.15rem;
+    cursor: pointer;
+    box-shadow:
+      0 6px 12px rgba(45, 140, 240, 0.4);
+    transition: background 0.35s ease, box-shadow 0.35s ease, transform 0.2s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .btn-login:hover {
+    background: linear-gradient(135deg, #56ccf2, #2f80ed);
+    box-shadow:
+      0 10px 20px rgba(45, 140, 240, 0.6);
+    transform: translateY(-3px);
+  }
+</style>
+
+<div class="login-container">
+  <div class="login-card">
+    <h1 class="login-title">Connexion</h1>
+    <form method="POST" action="{{ url_for('login') }}">
+      <label for="username" class="form-label">Nom d'utilisateur</label>
+      <div class="input-group">
+        <span class="input-group-text">
+          <i class="bi bi-person-fill"></i>
+        </span>
+        <input type="text" class="form-control" id="username" name="username" placeholder="Entrez votre nom d'utilisateur" required>
+      </div>
+
+      <label for="password" class="form-label">Mot de passe</label>
+      <div class="input-group">
+        <span class="input-group-text">
+          <i class="bi bi-lock-fill"></i>
+        </span>
+        <input type="password" class="form-control" id="password" name="password" placeholder="Entrez votre mot de passe" required>
+      </div>
+
+      <button type="submit" class="btn-login">
+        <i class="bi bi-box-arrow-in-right"></i> Se connecter
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}
